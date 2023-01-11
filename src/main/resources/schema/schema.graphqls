@@ -1,2 +1,12 @@
+schema {
+    query: Query
+}
 type Query {
+    user(id: Long): User
+}
+type User {
+    firstName: String
+    lastName: String
+    username: String
+    addressId: Long
 }
