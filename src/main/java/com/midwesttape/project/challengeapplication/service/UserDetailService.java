@@ -1,6 +1,7 @@
 package com.midwesttape.project.challengeapplication.service;
 
 
+import com.midwesttape.project.challengeapplication.exception.UserNotFoundException;
 import com.midwesttape.project.challengeapplication.model.Address;
 import com.midwesttape.project.challengeapplication.model.ResponseTemplateVO;
 import com.midwesttape.project.challengeapplication.model.User;
@@ -31,7 +32,6 @@ public class UserDetailService {
         this.addressRepository = addressRepository;
     }
 
-
     @Value("classpath:schema.graphqls")
     Resource resource;
 
@@ -61,18 +61,14 @@ public class UserDetailService {
     public GraphQL getGraphQL() {
         return graphQL;
     }
-    public ResponseTemplateVO getUserWithAddress(Long userId) {
+    public ResponseTemplateVO getUserWithAddress(Long userId) throws UserNotFoundException {
         ResponseTemplateVO vo = new ResponseTemplateVO();
         Optional<User> user = userRepository.findById(userId);
-        Long addressId = null;
-        try {
-            addressId = Long.valueOf(user.get().getAddressId());
-        } catch (NumberFormatException e) {
-            System.out.println(e.getMessage());
+        if(!user.isPresent()) {
+            throw new UserNotFoundException("User Not Found");
         }
-
-        if (addressId != null) {
-            Optional<Address> address = addressRepository.findById(addressId);
+        if (user.get().getAddressId() != null) {
+            Optional<Address> address = addressRepository.findById(user.get().getAddressId());
             vo.setAddress(address.get());
         }
 
@@ -81,7 +77,7 @@ public class UserDetailService {
         return vo;
     }
     public User updateUser(User user) {
-        User existingUser = userRepository.findById(user.getId()).orElse(null);
+        User existingUser = userRepository.findById(user.getId()).get();
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setPassword(user.getPassword());

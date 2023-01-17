@@ -1,5 +1,6 @@
 package com.midwesttape.project.challengeapplication.rest;
 
+import com.midwesttape.project.challengeapplication.exception.UserNotFoundException;
 import com.midwesttape.project.challengeapplication.model.ResponseTemplateVO;
 import com.midwesttape.project.challengeapplication.model.User;
 import com.midwesttape.project.challengeapplication.service.UserService;
@@ -13,14 +14,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/v1/users")
 public class UserController {
 
     private final UserService userService;
     @Autowired
     private UserDetailService userDetailService;
 
-     @GetMapping("/v1/users/{userId}")
-    public ResponseTemplateVO user(@PathVariable final Long userId) {
+     @GetMapping("/{userId}")
+    public ResponseTemplateVO user(@PathVariable final Long userId) throws UserNotFoundException {
         return userDetailService.getUserWithAddress(userId);
     }
 
@@ -28,12 +30,12 @@ public class UserController {
     public User user(@PathVariable final Long userId) {
         return userService.user(userId);
     }*/
-    @PutMapping("/v1/users/update")
+    @PutMapping("/update")
     public User updateUser(@RequestBody User user) {
         return userDetailService.updateUser(user);
     }
 
-    @PostMapping("/v1/users")
+    @PostMapping
     public ResponseEntity<Object> getUsers(@RequestBody String query) {
         ExecutionResult execute = userDetailService.getGraphQL().execute(query);
 
